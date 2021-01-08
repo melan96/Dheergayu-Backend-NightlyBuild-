@@ -12,6 +12,7 @@ from firebase_admin import credentials, firestore
 import requests
 import random as rand
 import json
+import datetime
 
 FIREBASE_CONFIGURATIONS_LOCATION = "/Users/melandias/Downloads/creds.json"
 GLOBAL_USERID = "Q6b7CzQDg7avBqDgFJdmkwo87192"
@@ -206,11 +207,33 @@ def executionForHRVContext():
 
 
 
+def updateDateTime():
+    datetimenow = datetime.datetime
+    print(datetimenow.today().strftime('%Y-%m-%d').__str__())
+    database_fs.collection('report').document(GLOBAL_USERID).update({
+        'date':datetimenow.today().strftime('%Y-%m-%d').__str__()
+    })
+
+def setOrUpdateDynamicComponent():
+    database_fs.collection('report').document(GLOBAL_USERID).update({
+        'dynamic_comp':'0',
+        'dynamic_blink':'0',
+        'dynamic_emotion':'0'
+    })
+
+def executeStaticComponent():
+
+
+
 
 def main():
+
     connectFireabseDatabase()
+
     executionForSleepContext()
     executionForHRVContext()
+    setOrUpdateDynamicComponent()
+    updateDateTime()
 
 
 if __name__ == "__main__":
