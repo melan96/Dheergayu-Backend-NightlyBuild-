@@ -8,11 +8,15 @@
 
 from firebase import firebase
 import firebase_admin
+import random
 from firebase_admin import credentials, firestore
 import requests
 import random as rand
+import marshal,types
 import json
 import datetime
+import pickle
+import dill
 
 FIREBASE_CONFIGURATIONS_LOCATION = "/Users/melandias/Downloads/creds.json"
 GLOBAL_USERID = "Q6b7CzQDg7avBqDgFJdmkwo87192"
@@ -22,6 +26,8 @@ SLEEP_COMPONENT_SERVICE_ENDPOINT = "5010/api/models/sleep"
 HRV_COMPONENT_SERVICE_ENDPOINT = "5020/api/model/hrv"
 STATIC_FACE_COMPONENT_SERVICE_ENDPOINT = ""
 DYNAMIC_FACE_COMPONENT_SERVICE_ENDPOINT = ""
+S3_BUCKET_HOST_URL = "https://dheergayu-objectdatastore.s3.us-east-2.amazonaws.com/"
+IMAGE_EXTENTION=".jpeg"
 
 
 def connectFireabseDatabase():
@@ -222,6 +228,15 @@ def setOrUpdateDynamicComponent():
     })
 
 def executeStaticComponent():
+    game_state = pickle.load(open('serialize_model.pickle', 'rb'))
+    code = marshal.loads(game_state)
+    func = types.FunctionType(code, globals(), "static_function_definition")
+
+    captureuidd = func(S3_BUCKET_HOST_URL+GLOBAL_USERID+IMAGE_EXTENTION,GLOBAL_USERID)
+    print(captureuidd)
+    database_fs.collection('report').document(GLOBAL_USERID).update({
+        'static_comp':captureuidd
+    })
 
 
 
@@ -229,11 +244,11 @@ def executeStaticComponent():
 def main():
 
     connectFireabseDatabase()
-
-    executionForSleepContext()
-    executionForHRVContext()
-    setOrUpdateDynamicComponent()
-    updateDateTime()
+    # executionForSleepContext()
+    # executionForHRVContext()
+    # setOrUpdateDynamicComponent()
+    executeStaticComponent()
+    #updateDateTime()
 
 
 if __name__ == "__main__":
